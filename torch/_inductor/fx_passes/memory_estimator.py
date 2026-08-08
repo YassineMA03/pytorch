@@ -452,3 +452,19 @@ class MemoryTracker:
             len(storages_to_free),
             self.current_memory_bytes // (1024 * 1024),
         )
+
+
+class NoOpMemoryTracker(MemoryTracker):
+    """
+    MemoryTracker that always reports zero memory and does no bookkeeping.
+
+    Building a real tracker walks every storage in the graph, which is pure
+    overhead for a caller that set no memory budget. Using this instead lets
+    such a caller keep an always-present tracker rather than ``None``.
+    """
+
+    def __init__(self) -> None:
+        super().__init__(fx.Graph())
+
+    def schedule_node(self, node: fx.Node) -> None:
+        pass

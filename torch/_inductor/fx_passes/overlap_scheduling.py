@@ -23,7 +23,7 @@ from torch._inductor.fx_passes.bucketing import (
     get_full_bucket_key,
     is_wait_tensor,
 )
-from torch._inductor.fx_passes.memory_estimator import MemoryTracker
+from torch._inductor.fx_passes.memory_estimator import MemoryTracker, NoOpMemoryTracker
 from torch._inductor.fx_passes.utils import BitsetAncestors
 from torch._logging import trace_structured
 from torch.fx.experimental.symbolic_shapes import optimization_hint
@@ -528,7 +528,12 @@ class OverlapScheduler:
         else:
             self.original_peak_memory = 0
             self.allowed_peak_memory_bytes = sys.maxsize
-            self.memory_tracker = None  # type: ignore[assignment]
+            self.memory_tracker = NoOpMemoryTracker()
+            # _compute_baseline_memory() did not run, so fill the per-compute-index
+            # baseline that _prefetch_would_exceed_memory_budget indexes. Zero
+            # baselines keep its budget check vacuous against sys.maxsize while
+            # its in-flight check still applies.
+            self.original_mem_before_compute_index = [0] * len(self.compute_nodes)
 
         self.cumulative_prefetch_mem_by_compute_index: list[int] = [
             0 for _ in range(len(self.compute_nodes))
