@@ -24,7 +24,6 @@ from torch.testing._internal.common_utils import (
     IS_WINDOWS,
     run_tests,
     skipIfRocm,
-    skipIfRocmVersionAtLeast,
     TestCase,
 )
 from torch.utils import _pytree as pytree
@@ -158,7 +157,6 @@ def _env_without_visible_accelerators():
     return env
 
 
-@skipIfRocmVersionAtLeast([7, 14])
 class TestExportOnFakeCuda(TestCase):
     # In CI, this test runs on a CUDA/ROCm machine with an accelerator build.
     # Hide physical devices to simulate a CPU machine with that build.
