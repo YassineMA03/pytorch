@@ -7,7 +7,7 @@ using c10::utils::bitset;
 
 TEST(BitsetTest, givenEmptyBitset_whenGettingBit_thenIsZero) {
   bitset b;
-  for (size_t i = 0; i < bitset::NUM_BITS(); ++i) {
+  for (size_t i = 0; i < b.size(); ++i) {
     EXPECT_FALSE(b.get(i));
   }
 }
@@ -15,7 +15,7 @@ TEST(BitsetTest, givenEmptyBitset_whenGettingBit_thenIsZero) {
 TEST(BitsetTest, givenEmptyBitset_whenUnsettingBit_thenIsZero) {
   bitset b;
   b.unset(4);
-  for (size_t i = 0; i < bitset::NUM_BITS(); ++i) {
+  for (size_t i = 0; i < b.size(); ++i) {
     EXPECT_FALSE(b.get(i));
   }
 }
@@ -24,7 +24,7 @@ TEST(BitsetTest, givenEmptyBitset_whenSettingAndUnsettingBit_thenIsZero) {
   bitset b;
   b.set(4);
   b.unset(4);
-  for (size_t i = 0; i < bitset::NUM_BITS(); ++i) {
+  for (size_t i = 0; i < b.size(); ++i) {
     EXPECT_FALSE(b.get(i));
   }
 }
@@ -41,7 +41,7 @@ TEST(BitsetTest, givenEmptyBitset_whenSettingBit_thenOthersStayUnset) {
   for (const auto i : c10::irange(6)) {
     EXPECT_FALSE(b.get(i));
   }
-  for (size_t i = 7; i < bitset::NUM_BITS(); ++i) {
+  for (size_t i = 7; i < b.size(); ++i) {
     EXPECT_FALSE(b.get(i));
   }
 }
@@ -63,7 +63,7 @@ TEST(BitsetTest, givenNonemptyBitset_whenSettingBit_thenOthersStayAtOldValue) {
   for (const auto i : c10::irange(7, 30)) {
     EXPECT_FALSE(b.get(i));
   }
-  for (size_t i = 31; i < bitset::NUM_BITS(); ++i) {
+  for (size_t i = 31; i < b.size(); ++i) {
     EXPECT_FALSE(b.get(i));
   }
 }
@@ -87,7 +87,7 @@ TEST(
     EXPECT_FALSE(b.get(i));
   }
   EXPECT_TRUE(b.get(30));
-  for (size_t i = 31; i < bitset::NUM_BITS(); ++i) {
+  for (size_t i = 31; i < b.size(); ++i) {
     EXPECT_FALSE(b.get(i));
   }
 }
@@ -110,7 +110,7 @@ struct IndexCallbackMock final {
 TEST(BitsetTest, givenEmptyBitset_whenCallingForEachBit_thenDoesntCall) {
   IndexCallbackMock callback;
   bitset b;
-  b.for_each_set_bit(callback);
+  for_each_set_bit(b, callback);
   callback.expect_was_called_for_indices({});
 }
 
@@ -120,7 +120,7 @@ TEST(
   IndexCallbackMock callback;
   bitset b;
   b.set(5);
-  b.for_each_set_bit(callback);
+  for_each_set_bit(b, callback);
   callback.expect_was_called_for_indices({5});
 }
 
@@ -137,6 +137,6 @@ TEST(
   b.set(0);
   b.unset(25);
   b.set(10);
-  b.for_each_set_bit(callback);
+  for_each_set_bit(b, callback);
   callback.expect_was_called_for_indices({0, 2, 5, 10, 32, 50});
 }
